@@ -45,7 +45,6 @@ const UserPage: FC<Props> = async ({params}) => {
                     Geo-location: lat {userData.address.geo.lat}, lng {userData.address.geo.lng}
                 </small>
             </section>
-
             <section>
                 <h3>Company</h3>
                 <p><b>Name:</b> {userData.company.name}</p>
