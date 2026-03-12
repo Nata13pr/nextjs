@@ -1,11 +1,13 @@
 import {Metadata} from "next";
 import {FC} from "react";
-import {users} from "@/data/users";
-
+import {SearchParams} from "next/dist/server/request/search-params";
+import {IUser} from "@/models/IUser";
+import {parseParamData} from "@/services/helpers/param.helper";
 
 
 type Props = {
-    params: { id: string }
+    params: Promise<{ id: string }>;
+    searchParams: Promise<SearchParams>;
 }
 
 export const generateMetadata = async ({params}: Props): Promise<Metadata> => {
@@ -16,40 +18,49 @@ export const generateMetadata = async ({params}: Props): Promise<Metadata> => {
     }
 }
 
-const UserPage: FC<Props> = async ({params}) => {
-    const {id} = await params;
-    const userData = users.find(u => u.id === Number(id));
+const UserPage: FC<Props> = async ({searchParams}) => {
+    const {data} = await searchParams;
 
-    if (!userData) return <div>User not found</div>;
+    const user = parseParamData<IUser>(data)
+
+
+    if (!user) return <div>User not found</div>;
     return (
-        <div style={{ padding: '20px', fontFamily: 'sans-serif', lineHeight: '1.6' }}>
-            <h1>User Profile: {userData.name}</h1>
-            <p style={{ color: 'gray' }}>Displaying details for ID from URL: {id}</p>
-            <hr />
+        <div style={{padding: '20px', fontFamily: 'sans-serif', lineHeight: '1.6'}}>
+            <h1>User Profile: {user.name}</h1>
+            <p style={{color: 'gray'}}>Displaying details for ID from URL: {user.id}</p>
+            <hr/>
 
-            <section style={{ marginBottom: '20px' }}>
+            <section style={{marginBottom: '20px'}}>
                 <h3>General Information</h3>
-                <p><b>Username:</b> {userData.username}</p>
-                <p><b>Email:</b> {userData.email}</p>
-                <p><b>Phone:</b> {userData.phone}</p>
-                <p><b>Website:</b> <a href={`https://${userData.website}`} target="_blank" rel="noreferrer">{userData.website}</a></p>
+                <p><b>Username:</b> {user.username}</p>
+                <p><b>Email:</b> {user.email}</p>
+                <p><b>Phone:</b> {user.phone}</p>
+                <p><b>Website:</b> <a href={`https://${user.website}`} target="_blank"
+                                      rel="noreferrer">{user.website}</a></p>
             </section>
 
-            <section style={{ marginBottom: '20px', padding: '15px', background: '#f9f9f9', borderRadius: '8px',color: '#666' }}>
+            <section style={{
+                marginBottom: '20px',
+                padding: '15px',
+                background: '#f9f9f9',
+                borderRadius: '8px',
+                color: '#666'
+            }}>
                 <h3>Address</h3>
-                <p><b>Street:</b> {userData.address.street}</p>
-                <p><b>Suite:</b> {userData.address.suite}</p>
-                <p><b>City:</b> {userData.address.city}</p>
-                <p><b>Zipcode:</b> {userData.address.zipcode}</p>
-                <small style={{ color: '#666' }}>
-                    Geo-location: lat {userData.address.geo.lat}, lng {userData.address.geo.lng}
+                <p><b>Street:</b> {user.address.street}</p>
+                <p><b>Suite:</b> {user.address.suite}</p>
+                <p><b>City:</b> {user.address.city}</p>
+                <p><b>Zipcode:</b> {user.address.zipcode}</p>
+                <small style={{color: '#666'}}>
+                    Geo-location: lat {user.address.geo.lat}, lng {user.address.geo.lng}
                 </small>
             </section>
             <section>
                 <h3>Company</h3>
-                <p><b>Name:</b> {userData.company.name}</p>
-                <p><b>Catch Phrase:</b> <i>{`"${userData.company.catchPhrase}"`}</i></p>
-                <p><b>Business Strategy:</b> {userData.company.bs}</p>
+                <p><b>Name:</b> {user.company.name}</p>
+                <p><b>Catch Phrase:</b> <i>{`"${user.company.catchPhrase}"`}</i></p>
+                <p><b>Business Strategy:</b> {user.company.bs}</p>
             </section>
         </div>
     )
